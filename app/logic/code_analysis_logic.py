@@ -1,5 +1,5 @@
-import math
 from collections import defaultdict
+import math
 
 from radon import metrics
 from radon import raw
@@ -97,6 +97,9 @@ def calculate_code_metrics(code):
     always hold.  Multiline strings are not counted as comments, since, to the
     Python interpreter, they are not comments but strings.
     '''
+    if is_hardcoded_data(code):
+        raise ValueError('SKIPPING. The file appears to be hardcoded data.')
+
     lloc = comments = single_comments = multi = blank = sloc = 0
     line_length = []
     lines = (line.strip() for line in code.splitlines())
@@ -144,6 +147,13 @@ def calculate_code_metrics(code):
         'loc': loc, 'lloc': lloc, 'sloc': sloc, 'comments': comments,
         'multi': multi, 'blank': blank, 'single_comments': single_comments,
         'avg_ll': utils.divide_or_zero(sum(line_length), sloc)}
+
+
+def is_hardcoded_data(code):
+    lines_cutoff = 100
+    ast_nodes = visitors.code2ast(code).body
+    avg_code_len = sum(n.end_lineno-n.lineno+1 for n in ast_nodes)/len(ast_nodes)
+    return avg_code_len > lines_cutoff
 
 
 def calculate_halstead_volume(ast):
