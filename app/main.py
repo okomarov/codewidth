@@ -12,6 +12,8 @@ from logic import query_repository_logic
 
 cfg = get_config()
 sentry_sdk.init(dsn=cfg.SENTRY_DSN, traces_sample_rate=1.0)
+sentry_sdk.utils.MAX_STRING_LENGTH = 2048
+
 
 if __name__ == '__main__':
     repos = github_client.get_repos_by_language(language='python')
