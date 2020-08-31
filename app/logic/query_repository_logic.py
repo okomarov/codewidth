@@ -22,9 +22,12 @@ def _path_has_ignored_tokens(path):
 
 
 def is_python_file_of_interest(git_tree_element):
-    return (
+    is_non_empty_python_file = (
         git_tree_element.path.endswith('.py') and
-        git_tree_element.size > 0 and
+        git_tree_element.size is not None and
+        git_tree_element.size > 0)
+    return (
+        is_non_empty_python_file and
         not _path_has_ignored_tokens(git_tree_element.path))
 
 
