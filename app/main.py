@@ -43,9 +43,12 @@ if __name__ == '__main__':
         metrics['github'].update({'languages': repo.get_languages()})
         metrics['state'] = 'github'
 
+        if metrics['github']['size']/num_files_interest > 1e5:
+            db_logic.insert_one(metrics)
+            continue
+
         folder = query_repository_logic.download_repo(
             repo, selected_files=files_of_interest)
-
         file_metrics = code_analysis_logic.calculate_metrics(folder)
         metrics.update(code_analysis_logic.consolidate_repo_metrics(file_metrics))
         if metrics['num_files_error'] < metrics['num_files_interest']:
