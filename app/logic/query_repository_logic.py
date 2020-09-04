@@ -60,14 +60,14 @@ def get_repo_metadata(git_repo):
 def download_repo(git_repo, selected_files=None):
     zip_url = f'{git_repo.html_url}/archive/{git_repo.default_branch}.zip'
     request = requests.get(zip_url)
-    archive = zipfile.ZipFile(io.BytesIO(request.content))
     destination = f'app/temp/{git_repo.name}'
 
-    if selected_files is not None:
-        selected_files = [
-            file for file in archive.namelist()
-            if any(pattern in file for pattern in selected_files)]
+    with zipfile.ZipFile(io.BytesIO(request.content)) as archive:
+        if selected_files is not None:
+            selected_files = [
+                file for file in archive.namelist()
+                if any(pattern in file for pattern in selected_files)]
 
-    archive.extractall(destination, members=selected_files)
+        archive.extractall(destination, members=selected_files)
 
     return f'{destination}/{git_repo.name}-{git_repo.default_branch}'
