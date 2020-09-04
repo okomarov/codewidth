@@ -31,7 +31,8 @@ if __name__ == '__main__':
             'name': name,
             'created_at': datetime.utcnow().isoformat(),
             'num_files': num_files,
-            'num_files_interest': num_files_interest}
+            'num_files_interest': num_files_interest,
+            'state': 'basic'}
         print(metrics)
 
         if num_files_interest < 1:
@@ -40,6 +41,7 @@ if __name__ == '__main__':
 
         metrics['github'] = query_repository_logic.get_repo_metadata(repo)
         metrics['github'].update({'languages': repo.get_languages()})
+        metrics['state'] = 'github'
 
         folder = query_repository_logic.download_repo(
             repo, selected_files=files_of_interest)
@@ -48,6 +50,7 @@ if __name__ == '__main__':
         metrics.update(code_analysis_logic.consolidate_repo_metrics(file_metrics))
         if metrics['num_files_error'] < metrics['num_files_interest']:
             metrics['files'] = file_metrics
+            metrics['state'] = 'full'
 
         db_logic.insert_one(metrics)
 
