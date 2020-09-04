@@ -22,16 +22,32 @@ if __name__ == '__main__':
         if db_logic.check_exists({'name': name}):
             continue
 
-        files = query_repository_logic.list_python_files_of_interest(repo)
-        if len(files) < 1:
-            continue
-        folder = query_repository_logic.download_repo(
-            repo, selected_files=[f.path for f in files])
+        files_map = query_repository_logic.list_python_files_of_interest(repo)
+        num_files = len(files_map)
+        files_of_interest = [k for k, v in files_map.items() if v == 1]
+        num_files_interest = len(files_of_interest)
 
-        metrics = {'name': name, 'created_at': datetime.utcnow().isoformat()}
+        metrics = {
+            'name': name,
+            'created_at': datetime.utcnow().isoformat(),
+            'num_files': num_files,
+            'num_files_interest': num_files_interest}
         print(metrics)
+
+        if num_files_interest < 1:
+            db_logic.insert_one(metrics)
+            continue
+
+        metrics['github'] = query_repository_logic.get_repo_metadata(repo)
+        metrics['github'].update({'languages': repo.get_languages()})
+
+        folder = query_repository_logic.download_repo(
+            repo, selected_files=files_of_interest)
+
         file_metrics = code_analysis_logic.calculate_metrics(folder)
         metrics.update(code_analysis_logic.consolidate_repo_metrics(file_metrics))
+        if metrics['num_files_error'] < metrics['num_files_interest']:
+            metrics['files'] = file_metrics
 
         db_logic.insert_one(metrics)
 

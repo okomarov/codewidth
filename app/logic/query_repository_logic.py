@@ -24,7 +24,6 @@ def _path_has_ignored_tokens(path):
 def is_python_file_of_interest(git_tree_element):
     is_non_empty_python_file = (
         git_tree_element.path.endswith('.py') and
-        git_tree_element.size is not None and
         git_tree_element.size > 0)
     return (
         is_non_empty_python_file and
@@ -33,7 +32,11 @@ def is_python_file_of_interest(git_tree_element):
 
 def list_python_files_of_interest(git_repo):
     tree = git_repo.get_git_tree(git_repo.default_branch, recursive=True).tree
-    return [element for element in tree if is_python_file_of_interest(element)]
+    files = {}
+    for element in tree:
+        if element.size is not None:
+            files[element.path] = is_python_file_of_interest(element)
+    return files
 
 
 def has_python_language_above(git_repo, threshold=0.6):

@@ -201,7 +201,6 @@ def consolidate_repo_metrics(metrics):
         m['avg_ll'] = round(m['avg_ll'], decimals)
 
     # Repo level metrics
-    res['num_files'] = len(metrics)
     res['avg_complexity'] = round(
         utils.divide_or_zero(total_compexity, res['total_block_len']),
         decimals)
@@ -209,6 +208,5 @@ def consolidate_repo_metrics(metrics):
     res['avg_ll'] = round(
         utils.divide_or_zero(total_line_length, res['sloc']),
         decimals)
-    res['files'] = metrics
 
     return res
