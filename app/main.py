@@ -44,7 +44,8 @@ if __name__ == '__main__':
         metrics['github'].update({'languages': repo.get_languages()})
         metrics['state'] = 'github'
 
-        if metrics['github']['size']/num_files_interest > 1e5:
+        if query_repository_logic.is_big_repo(
+                metrics['github']['size'], num_files_interest):
             db_logic.insert_one(metrics)
             continue
 

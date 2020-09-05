@@ -3,6 +3,10 @@ import zipfile
 
 import requests
 
+from config import get_config
+
+
+cfg = get_config()
 
 # https://github.com/github/gitignore/blob/master/Python.gitignore
 python_gitignore_tokens = [
@@ -43,6 +47,13 @@ def has_python_language_above(git_repo, threshold=0.6):
     languages = git_repo.get_languages()
     total = sum(languages.values())
     return languages['Python']/total > threshold
+
+
+def is_big_repo(repo_size_in_kb, num_files_interest):
+    avg_file_size_cutoff = cfg.REPO_SIZE_CUTOFF_IN_KB/10
+    return (
+        repo_size_in_kb > cfg.REPO_SIZE_CUTOFF_IN_KB or
+        repo_size_in_kb/num_files_interest > avg_file_size_cutoff)
 
 
 def get_repo_metadata(git_repo):
