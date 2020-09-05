@@ -11,8 +11,9 @@ from logic import query_repository_logic
 
 
 cfg = get_config()
+
 sentry_sdk.init(dsn=cfg.SENTRY_DSN, traces_sample_rate=1.0)
-sentry_sdk.utils.MAX_STRING_LENGTH = 2048
+sentry_sdk.utils.MAX_STRING_LENGTH = cfg.SENTRY_MAX_STRING_LENGTH
 
 
 if __name__ == '__main__':

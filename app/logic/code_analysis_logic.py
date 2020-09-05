@@ -9,10 +9,13 @@ from radon.cli.harvest import Harvester
 from radon.visitors import ComplexityVisitor
 from radon.visitors import HalsteadVisitor
 
+from config import get_config
 import utils
 
 
-cfg = Config(
+cfg = get_config()
+
+radon_cfg = Config(
     ignore=None,
     exclude=None,
     include_ipynb=False,
@@ -21,7 +24,7 @@ cfg = Config(
     multi=True)
 
 
-def calculate_metrics(path, config=cfg):
+def calculate_metrics(path, config=radon_cfg):
     results = {}
     for k, result in CombinedHarvester([path], config).results:
         k = utils.remove_prefix(k, path)
@@ -150,10 +153,9 @@ def calculate_code_metrics(code):
 
 
 def is_hardcoded_data(code):
-    lines_cutoff = 100
     ast_nodes = visitors.code2ast(code).body
-    avg_code_len = sum(n.end_lineno-n.lineno+1 for n in ast_nodes)/len(ast_nodes)
-    return avg_code_len > lines_cutoff
+    avg_code_block_len = sum(n.end_lineno-n.lineno+1 for n in ast_nodes)/len(ast_nodes)
+    return avg_code_block_len > cfg.CODE_BLOCK_LEN_HARDCODED_DATA
 
 
 def calculate_halstead_volume(ast):
