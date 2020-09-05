@@ -17,9 +17,10 @@ sentry_sdk.utils.MAX_STRING_LENGTH = 2048
 
 if __name__ == '__main__':
     repos = github_client.get_repos_by_language(language='python')
+    existing_names = set(db_logic.get_names())
     for repo in repos:
         name = repo.full_name
-        if db_logic.check_exists({'name': name}):
+        if name in existing_names:
             continue
 
         files_map = query_repository_logic.list_python_files_of_interest(repo)
