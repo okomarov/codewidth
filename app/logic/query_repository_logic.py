@@ -65,12 +65,15 @@ def download_repo(git_repo, selected_files=None):
     request = requests.get(zip_url)
     destination = f'app/temp/{git_repo.name}'
 
+    zip_root = ''
     with zipfile.ZipFile(io.BytesIO(request.content)) as archive:
+        namelist = archive.namelist()
+        zip_root = namelist[0].replace('/', '')
         if selected_files is not None:
             selected_files = [
-                file for file in archive.namelist()
+                file for file in namelist
                 if any(pattern in file for pattern in selected_files)]
 
         archive.extractall(destination, members=selected_files)
 
-    return f'{destination}/{git_repo.name}-{git_repo.default_branch}'
+    return f'{destination}/{zip_root}'
